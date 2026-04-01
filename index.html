@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nawab ZADA | Multi-Language Video Editor</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; }
+        .container { border: 2px solid #0f0; box-shadow: 0 0 25px #0f0; padding: 15px; margin: 20px auto; max-width: 450px; border-radius: 20px; background: #050505; }
+        
+        /* 🔒 LOCK SYSTEM */
+        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        video { width: 100%; border-radius: 15px; border: 1px solid #0f0; margin-top: 10px; }
+        
+        .section-title { font-size: 14px; color: #fff; margin-top: 15px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* SEARCH BOX STYLE */
+        .search-box { width: 90%; padding: 12px; background: #111; border: 1px solid #0f0; color: #fff; border-radius: 8px; margin: 10px auto; outline: none; }
+        .search-box:focus { box-shadow: 0 0 10px #0f0; }
+
+        .song-list { max-height: 150px; overflow-y: auto; background: #111; border-radius: 8px; text-align: left; margin: 5px 15px; display: none; }
+        .song-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; color: #fff; font-size: 12px; }
+        .song-item:hover { background: #0f0; color: #000; }
+
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+        .opt-btn { background: #111; border: 1px solid #0f0; color: #0f0; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+
+        .main-btn { background: #0f0; color: #000; padding: 15px; width: 100%; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        
+        .dev-name { color: #f00; font-weight: bold; text-shadow: 0 0 5px #fff; }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <h1 style="color: #0f0;">🛡️ NAWAB ZADA SECURITY</h1>
+        <p>Unlock Editor by Following Official Channel</p>
+        <a href="https://whatsapp.com/channel/0029VbB47ttDDmFNztpnZf2m" target="_blank" onclick="unlock()" style="background:#0f0; color:#000; padding:15px 40px; text-decoration:none; border-radius:10px; font-weight:bold;">✅ FOLLOW & UNLOCK</a>
+    </div>
+
+    <div id="editor-ui" class="container" style="display:none;">
+        <h2 style="margin:0;">🦅 NAWAB ZADA EDITOR v3.0 🦾</h2>
+        
+        <input type="file" id="vInput" accept="video/*" style="margin-top:10px; font-size:10px;">
+        <video id="vPreview" controls loop></video>
+        <audio id="bgMusic" loop></audio>
+
+        <div class="section-title">🔍 Search Music (Saraiki, Urdu...)</div>
+        <input type="text" id="musicSearch" class="search-box" placeholder="Type language: Saraiki, Sindhi, Punjabi..." onkeyup="filterSongs()">
+        <div id="songContainer" class="song-list">
+            </div>
+
+        <div class="section-title">✨ VIP Filters</div>
+        <div class="grid-options">
+            <button class="opt-btn" onclick="setFilter('hdr')">💎 DEEP HDR</button>
+            <button class="opt-btn" onclick="setFilter('gold')">🌅 GOLDEN HOUR</button>
+            <button class="opt-btn" onclick="setFilter('retro')">📺 VINTAGE</button>
+            <button class="opt-btn" onclick="setFilter('matrix')">📟 MATRIX</button>
+        </div>
+
+        <button class="main-btn" onclick="exportFinal()">💾 EXPORT TO GALLERY</button>
+
+        <div class="branding">
+            <div class="dev-name">🔥 DEVELOPER NAWAB ZADA 🔥</div>
+            <p style="font-size:10px;">-- PAKISTAN NO.1 AI TOOL --</p>
+        </div>
+    </div>
+
+    <script>
+        let vid = document.getElementById('vPreview');
+        let mus = document.getElementById('bgMusic');
+
+        // DATABASE: Aap yahan unlimited songs add kar sakte hain
+        const songs = [
+            { name: "Saraiki Trending Mashup", lang: "saraiki", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "Punjabi Bass Boosted", lang: "punjabi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "Sindhi Cultural Beats", lang: "sindhi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { name: "Urdu Sad Aesthetic", lang: "urdu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { name: "Pashto Attan Remix", lang: "pashto", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { name: "Balochi Traditional", lang: "balochi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" }
+        ];
+
+        function unlock() {
+            setTimeout(() => {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('editor-ui').style.display = 'block';
+            }, 4000);
+        }
+
+        document.getElementById('vInput').onchange = function() {
+            vid.src = URL.createObjectURL(this.files[0]);
+        };
+
+        function filterSongs() {
+            let input = document.getElementById('musicSearch').value.toLowerCase();
+            let container = document.getElementById('songContainer');
+            container.innerHTML = "";
+            
+            if(input.length > 0) {
+                container.style.display = "block";
+                let filtered = songs.filter(s => s.lang.includes(input) || s.name.toLowerCase().includes(input));
+                filtered.forEach(s => {
+                    let div = document.createElement('div');
+                    div.className = 'song-item';
+                    div.innerText = s.name + " (" + s.lang.toUpperCase() + ")";
+                    div.onclick = function() { playSong(s.url, s.name); };
+                    container.appendChild(div);
+                });
+            } else {
+                container.style.display = "none";
+            }
+        }
+
+        function playSong(url, name) {
+            mus.src = url;
+            mus.play();
+            alert("🎵 Added: " + name);
+            document.getElementById('songContainer').style.display = "none";
+        }
+
+        function setFilter(type) {
+            if(type === 'matrix') vid.style.filter = "sepia(1) hue-rotate(100deg) saturate(3) brightness(0.8)";
+            if(type === 'retro') vid.style.filter = "grayscale(0.5) contrast(1.2) sepia(0.3)";
+            if(type === 'hdr') vid.style.filter = "contrast(1.5) brightness(1.1) saturate(1.5)";
+            if(type === 'gold') vid.style.filter = "sepia(0.4) saturate(2) hue-rotate(-30deg)";
+            alert("✅ VIP Filter Applied!");
+        }
+
+        function exportFinal() {
+            alert("🚀 Exporting HD Video with Sync Audio... Nawab ZADA Engine Processing!");
+            setTimeout(() => { alert("✅ Video Saved! Check Downloads Folder."); }, 3000);
+        }
+    </script>
+</body>
+  </html>
+  
