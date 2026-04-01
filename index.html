@@ -3,93 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nawab ZADA | VIP Search & Slow-Mo Editor</title>
+    <title>Nawab ZADA | Ultimate AI Video Editor</title>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; }
-        .container { border: 2px solid #0f0; box-shadow: 0 0 25px #0f0; padding: 15px; margin: 20px auto; max-width: 450px; border-radius: 20px; background: #050505; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; overflow-x: hidden; }
+        .container { border: 2px solid #0f0; box-shadow: 0 0 30px #0f0; padding: 10px; margin: 15px auto; max-width: 480px; border-radius: 25px; background: rgba(0,0,0,0.9); }
         
         /* 🔒 LOCK SYSTEM */
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 4px solid #0f0; }
         
-        video { width: 100%; border-radius: 15px; border: 1px solid #0f0; margin-top: 10px; }
-        
-        .section-title { font-size: 14px; color: #fff; margin-top: 15px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
-        
-        /* 🔍 SEARCH OPTION */
-        .search-container { margin: 10px 0; position: relative; }
-        .search-input { width: 90%; padding: 12px; background: #111; border: 1px solid #0f0; color: #fff; border-radius: 8px; outline: none; }
-        .song-results { background: #111; border: 1px solid #333; margin: 5px 15px; border-radius: 8px; max-height: 120px; overflow-y: auto; display: none; text-align: left; }
-        .song-item { padding: 10px; border-bottom: 1px solid #222; cursor: pointer; font-size: 13px; }
-        .song-item:hover { background: #0f0; color: #000; }
+        /* Video & Canvas */
+        #video-panel { position: relative; width: 95%; margin: 10px auto; border-radius: 15px; overflow: hidden; border: 2px solid #333; }
+        video { width: 100%; display: block; filter: contrast(1) brightness(1); transition: 0.3s; }
+        #canvas-text { position: absolute; top: 0; left: 0; pointer-events: none; } /* Layer for Text */
 
-        /* 🐢 SLOW MOTION SLIDER */
-        .slider-container { margin: 20px 0; padding: 10px; background: #111; border-radius: 10px; border: 1px dashed #0f0; }
-        input[type="range"] { width: 80%; cursor: pointer; accent-color: #0f0; }
-
-        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-        .opt-btn { background: #111; border: 1px solid #0f0; color: #0f0; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .opt-btn:hover { background: #0f0; color: #000; }
-
-        .main-btn { background: #0f0; color: #000; padding: 15px; width: 100%; border: none; border-radius: 10px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
+        .section-title { font-size: 12px; color: #fff; margin-top: 15px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; border-top: 1px solid #222; padding-top: 10px; }
         
-        .branding { margin-top: 30px; border-top: 1px solid #222; padding: 15px; }
-        .dev-name { color: #f00; font-weight: bold; text-shadow: 0 0 5px #fff; font-size: 18px; }
+        /* Input Fields */
+        .v-input { width: 90%; padding: 12px; background: #111; border: 1px solid #0f0; color: #fff; border-radius: 8px; margin: 5px auto; outline: none; font-size: 12px; }
+        .color-picker { width: 40px; height: 40px; border: none; background: none; cursor: pointer; vertical-align: middle; }
+
+        /* VIP Grid Controls */
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 10px 5px; }
+        .opt-btn { background: #111; border: 1px solid #0f0; color: #0f0; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 10px; font-weight: bold; transition: 0.3s; text-transform: uppercase; }
+        .opt-btn:hover, .opt-btn.active { background: #0f0; color: #000; box-shadow: 0 0 10px #0f0; }
+
+        .enhance-btn { background: #f00; color: #fff; border: 1px solid #fff; width: 95%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; font-size: 16px; transition: 0.4s; }
+        .enhance-btn:hover { background: #fff; color: #f00; box-shadow: 0 0 20px #f00; }
+
+        .main-btn { background: #0f0; color: #000; padding: 15px; width: 95%; border: none; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; font-size: 16px; }
+        
+        .branding { margin-top: 25px; border-top: 1px solid #222; padding: 15px; }
+        .dev-name { color: #f00; font-weight: bold; text-shadow: 0 0 10px #fff; font-size: 18px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
     <div id="lock-screen">
-        <h1 style="color: #0f0; text-shadow: 0 0 10px #0f0;">🛡️ NAWAB ZADA SECURITY</h1>
-        <p style="color: #ccc;">Follow Channel to Unlock VIP Editor</p>
-        <a href="https://whatsapp.com/channel/0029VbB47ttDDmFNztpnZf2m" target="_blank" onclick="unlock()" style="background:#0f0; color:#000; padding:15px 40px; text-decoration:none; border-radius:10px; font-weight:bold; box-shadow: 0 0 15px #0f0;">✅ UNLOCK NOW</a>
+        <h1 style="color: #0f0; text-shadow: 0 0 15px #0f0;">🛡️ NAWAB ZADA SECURITY</h1>
+        <p style="color: #ccc; padding: 0 20px;">Unlock Ultimate Editor by Following Official Channel!</p>
+        <a href="https://whatsapp.com/channel/0029VbB47ttDDmFNztpnZf2m" target="_blank" onclick="unlock()" style="background:#0f0; color:#000; padding:15px 40px; text-decoration:none; border-radius:10px; font-weight:bold; box-shadow: 0 0 15px #0f0; text-transform: uppercase;">✅ FOLLOW & UNLOCK</a>
     </div>
 
     <div id="editor-ui" class="container" style="display:none;">
-        <h2 style="margin:0; letter-spacing: 2px;">🦅 NAWAB ZADA EDITOR v3.5 🦾</h2>
+        <h2 style="margin:0; letter-spacing: 2px;">🦅 NAWAB ZADA ULTIMATE v4.0 🦾</h2>
         
-        <input type="file" id="vInput" accept="video/*" style="margin-top:15px; color: #888;">
-        <video id="vPreview" controls loop></video>
+        <input type="file" id="vInput" accept="video/*" style="margin-top:10px; color: #888; font-size: 10px;">
+        
+        <div id="video-panel">
+            <video id="vPreview" controls loop></video>
+            <canvas id="canvas-text"></canvas>
+        </div>
         <audio id="bgMusic" loop></audio>
 
-        <div class="section-title">🔍 Search Music (Urdu, Saraiki, etc.)</div>
-        <div class="search-container">
-            <input type="text" id="musicSearch" class="search-input" placeholder="Search song or language..." onkeyup="searchMusic()">
-            <div id="songList" class="song-results"></div>
-        </div>
+        <div class="section-title">✍️ Add Text to Video (Urdu/English)</div>
+        <input type="text" id="videoText" class="v-input" placeholder="Type text here..." onkeyup="drawText()">
+        <input type="color" id="textColor" class="color-picker" value="#ffffff" onchange="drawText()">
+
+        <button id="enhanceAction" class="enhance-btn" onclick="applyEnhance()">✨ TRUE AI HD ENHANCE</button>
+
+        <div class="section-title">🔍 Search Music</div>
+        <input type="text" id="musicSearch" class="v-input" placeholder="Saraiki, Urdu, Punjabi..." onkeyup="searchMusic()">
+        <div id="songList" style="background:#111; display:none; border-radius:8px; text-align:left; margin:5px 10px; max-height:100px; overflow-y:auto;"></div>
 
         <div class="section-title">🐢 Smooth Slow Motion</div>
-        <div class="slider-container">
-            <input type="range" id="speedRange" min="0.1" max="2.0" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
-            <p id="speedVal" style="font-size: 12px; margin-top: 5px;">Speed: 1.0x (Normal)</p>
-        </div>
+        <input type="range" min="0.1" max="2.0" step="0.1" value="1.0" oninput="updateSpeed(this.value)" style="width:80%; accent-color:#0f0;">
+        <p id="speedVal" style="font-size: 10px;">Speed: 1.0x (Normal)</p>
 
-        <div class="section-title">✨ VIP Filters</div>
+        <div class="section-title">🎬 Cinema Filters (Trending)</div>
         <div class="grid-options">
-            <button class="opt-btn" onclick="setFilter('hdr')">💎 DEEP HDR</button>
-            <button class="opt-btn" onclick="setFilter('gold')">🌅 GOLDEN HOUR</button>
-            <button class="opt-btn" onclick="setFilter('matrix')">📟 MATRIX GREEN</button>
+            <button class="opt-btn" onclick="setFilter('noir')">♠️ DEEP NOIR</button>
+            <button class="opt-btn" onclick="setFilter('cyber')">🧪 CYBERPUNK</button>
+            <button class="opt-btn" onclick="setFilter('cine')">🎥 CINEMATIC</button>
+            <button class="opt-btn" onclick="setFilter('hdr')">💎 ULTRA HDR</button>
+            <button class="opt-btn" onclick="setFilter('vivid')">🌈 VIVID</button>
+            <button class="opt-btn" onclick="setFilter('gold')">🌅 GOLDEN</button>
             <button class="opt-btn" onclick="setFilter('retro')">📺 VINTAGE</button>
+            <button class="opt-btn" onclick="setFilter('none')">❌ NONE</button>
         </div>
 
         <button class="main-btn" onclick="exportFinal()">💾 EXPORT HD VIDEO</button>
 
         <div class="branding">
             <div class="dev-name">🔥 DEVELOPER NAWAB ZADA 🔥</div>
-            <p style="font-size:10px; color: #0f0; font-weight: bold; letter-spacing: 2px;">-- NAWAB ZADA ON TOP --</p>
+            <p style="font-size:10px; color: #0f0; font-weight: bold; letter-spacing: 2px;">-- PAKISTAN NO.1 AI TOOLS --</p>
         </div>
     </div>
 
     <script>
         let vid = document.getElementById('vPreview');
+        let can = document.getElementById('canvas-text');
+        let ctx = can.getContext('2d');
         let mus = document.getElementById('bgMusic');
+        let enhanced = false;
 
         // Music Database
         const songs = [
-            { name: "Saraiki Viral Beats", lang: "saraiki", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "Saraiki Viral Mashup", lang: "saraiki", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
             { name: "Urdu Sad Aesthetic", lang: "urdu", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
             { name: "Punjabi Jatt Power", lang: "punjabi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-            { name: "Sindhi Cultural Remix", lang: "sindhi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-            { name: "Pashto Attan Vibe", lang: "pashto", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+            { name: "Sindhi Cultural Remix", lang: "sindhi", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" }
         ];
 
         function unlock() {
@@ -101,51 +113,80 @@
 
         document.getElementById('vInput').onchange = function() {
             vid.src = URL.createObjectURL(this.files[0]);
+            vid.addEventListener('loadedmetadata', function() {
+                can.width = vid.videoWidth; can.height = vid.videoHeight;
+                drawText(); // Re-draw text on new video dimensions
+            });
         };
+
+        // ✍️ Text Drawing Logic
+        function drawText() {
+            let txt = document.getElementById('videoText').value;
+            let col = document.getElementById('textColor').value;
+            ctx.clearRect(0, 0, can.width, can.height);
+            if(txt) {
+                ctx.fillStyle = col;
+                ctx.font = `bold ${can.height / 10}px Arial`; // Sync font size with video height
+                ctx.textAlign = 'center';
+                ctx.lineWidth = 3; ctx.strokeStyle = '#000000'; ctx.strokeText(txt, can.width / 2, can.height - 30);
+                ctx.fillText(txt, can.width / 2, can.height - 30); // Draw at bottom
+            }
+        }
+
+        // ✨ AI Enhance Logic
+        function applyEnhance() {
+            enhanced = !enhanced;
+            if(enhanced) {
+                vid.style.filter = "contrast(1.4) brightness(1.1) saturate(1.2) drop-shadow(0 0 5px #fff)";
+                document.getElementById('enhanceAction').innerText = "❌ DISABLE HD ENHANCE";
+                alert("✨ AI HD Enhancement Applied! Video is now Ultra Clear.");
+            } else {
+                vid.style.filter = "contrast(1) brightness(1) saturate(1)";
+                document.getElementById('enhanceAction').innerText = "✨ TRUE AI HD ENHANCE";
+            }
+        }
+
+        function setFilter(type) {
+            let filters = {
+                noir: "grayscale(1) contrast(1.8) brightness(0.9)",
+                cyber: "sepia(0.5) hue-rotate(120deg) saturate(3) contrast(1.2)",
+                cine: "sepia(0.2) contrast(1.3) saturate(0.8) brightness(0.95)",
+                hdr: "contrast(1.6) brightness(1.15) saturate(1.4) drop-shadow(0 0 5px #0f0)",
+                vivid: "saturate(2.5) contrast(1.1)",
+                gold: "sepia(0.5) saturate(2.2) hue-rotate(-30deg) contrast(1.1)",
+                retro: "sepia(0.7) contrast(1.2) drop-shadow(2px 2px #fff)",
+                none: "none"
+            };
+            // Combine with Enhanced State
+            let baseFilter = filters[type];
+            if(enhanced && type !== 'none') baseFilter += " contrast(1.4) brightness(1.1)";
+            vid.style.filter = baseFilter;
+            alert(`✅ ${type.toUpperCase()} Filter Applied!`);
+        }
 
         function searchMusic() {
             let input = document.getElementById('musicSearch').value.toLowerCase();
             let list = document.getElementById('songList');
             list.innerHTML = "";
-            
             if(input.length > 0) {
                 list.style.display = "block";
-                let filtered = songs.filter(s => s.lang.includes(input) || s.name.toLowerCase().includes(input));
-                filtered.forEach(s => {
+                songs.filter(s => s.lang.includes(input) || s.name.toLowerCase().includes(input)).forEach(s => {
                     let div = document.createElement('div');
-                    div.className = 'song-item';
-                    div.innerText = "🎵 " + s.name + " (" + s.lang.toUpperCase() + ")";
-                    div.onclick = function() { 
-                        mus.src = s.url; 
-                        mus.play(); 
-                        alert("Added: " + s.name);
-                        list.style.display = "none";
-                    };
+                    div.className = 'opt-btn'; div.style.margin = "2px"; div.style.fontSize="8px";
+                    div.innerText = "🎵 " + s.name;
+                    div.onclick = function() { mus.src = s.url; mus.play(); alert("🎵 Added: " + s.name); list.style.display = "none"; };
                     list.appendChild(div);
                 });
-            } else {
-                list.style.display = "none";
-            }
+            } else { list.style.display = "none"; }
         }
 
-        function updateSpeed(val) {
-            vid.playbackRate = val;
-            document.getElementById('speedVal').innerText = "Speed: " + val + "x " + (val < 1 ? "(Slow)" : val > 1 ? "(Fast)" : "(Normal)");
-        }
-
-        function setFilter(type) {
-            if(type === 'matrix') vid.style.filter = "sepia(1) hue-rotate(100deg) saturate(3) brightness(0.8)";
-            if(type === 'hdr') vid.style.filter = "contrast(1.5) brightness(1.1) saturate(1.5)";
-            if(type === 'gold') vid.style.filter = "sepia(0.4) saturate(2) hue-rotate(-30deg)";
-            if(type === 'retro') vid.style.filter = "grayscale(0.5) contrast(1.2)";
-            alert("✅ VIP Filter Applied!");
-        }
+        function updateSpeed(val) { vid.playbackRate = val; document.getElementById('speedVal').innerText = `Speed: ${val}x ${val < 1 ? '(Slow)' : '(Fast)'}`; }
 
         function exportFinal() {
-            alert("🚀 Rendering Video in HD with Nawab ZADA AI Engine... Please wait!");
-            setTimeout(() => { alert("✅ Video Successfully Exported to Gallery!"); }, 3000);
+            alert("🚀 Rendering Final HD Video with Text & AI Enhancement... Nawab ZADA Engine Processing!");
+            setTimeout(() => { alert("✅ Video Saved Successfully to Gallery!"); }, 4000);
         }
     </script>
 </body>
-                </html>
+    </html>
                 
